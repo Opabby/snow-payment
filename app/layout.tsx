@@ -6,13 +6,16 @@ import { PropsWithChildren, Suspense } from 'react';
 import { getURL } from '@/utils/helpers';
 import 'styles/main.css';
 
-const title = 'Next.js Subscription Starter';
+const title = 'Snow Recovery';
 const description = 'Brought to you by Vercel, Stripe, and Supabase.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(getURL()),
   title: title,
   description: description,
+  icons: {
+    icon: '/logo.svg'
+  },
   openGraph: {
     title: title,
     description: description
