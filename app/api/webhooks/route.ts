@@ -3,7 +3,6 @@ import { stripe } from '@/utils/stripe/config';
 import {
   upsertProductRecord,
   upsertPriceRecord,
-  manageSubscriptionStatusChange,
   deleteProductRecord,
   deletePriceRecord
 } from '@/utils/supabase/admin';
@@ -15,10 +14,7 @@ const relevantEvents = new Set([
   'price.created',
   'price.updated',
   'price.deleted',
-  'checkout.session.completed',
-  'customer.subscription.created',
-  'customer.subscription.updated',
-  'customer.subscription.deleted'
+  'checkout.session.completed'
 ]);
 
 export async function POST(req: Request) {
@@ -54,26 +50,9 @@ export async function POST(req: Request) {
         case 'product.deleted':
           await deleteProductRecord(event.data.object as Stripe.Product);
           break;
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-        case 'customer.subscription.deleted':
-          const subscription = event.data.object as Stripe.Subscription;
-          await manageSubscriptionStatusChange(
-            subscription.id,
-            subscription.customer as string,
-            event.type === 'customer.subscription.created'
-          );
-          break;
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
-          if (checkoutSession.mode === 'subscription') {
-            const subscriptionId = checkoutSession.subscription;
-            await manageSubscriptionStatusChange(
-              subscriptionId as string,
-              checkoutSession.customer as string,
-              true
-            );
-          }
+          console.log(`✅ Payment completed for session: ${checkoutSession.id}`);
           break;
         default:
           throw new Error('Unhandled relevant event!');

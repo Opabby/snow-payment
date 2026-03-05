@@ -3,18 +3,13 @@ import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
-import {
-  getUserDetails,
-  getSubscription,
-  getUser
-} from '@/utils/supabase/queries';
+import { getUserDetails, getUser } from '@/utils/supabase/queries';
 
 export default async function Account() {
   const supabase = createClient();
-  const [user, userDetails, subscription] = await Promise.all([
+  const [user, userDetails] = await Promise.all([
     getUser(supabase),
-    getUserDetails(supabase),
-    getSubscription(supabase)
+    getUserDetails(supabase)
   ]);
 
   if (!user) {
@@ -34,7 +29,7 @@ export default async function Account() {
         </div>
       </div>
       <div className="p-4">
-        <CustomerPortalForm subscription={subscription} />
+        <CustomerPortalForm subscription={null} />
         <NameForm userName={userDetails?.full_name ?? ''} />
         <EmailForm userEmail={user.email} />
       </div>

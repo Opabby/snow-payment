@@ -2,8 +2,6 @@
 
 import Stripe from 'stripe';
 import { stripe } from '@/utils/stripe/config';
-import { createClient } from '@/utils/supabase/server';
-import { createOrRetrieveCustomer } from '@/utils/supabase/admin';
 import {
   getURL,
   getErrorRedirect,
@@ -20,15 +18,9 @@ type CheckoutResponse = {
 
 export async function checkoutWithStripe(
   price: Price,
-  redirectPath: string = '/account'
+  redirectPath: string = '/success'
 ): Promise<CheckoutResponse> {
   try {
-    // Get the user from Supabase auth (optional — guests can checkout too)
-    const supabase = createClient();
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
     let params: Stripe.Checkout.SessionCreateParams = {
       allow_promotion_codes: true,
       billing_address_collection: 'required',
@@ -42,28 +34,6 @@ export async function checkoutWithStripe(
       success_url: getURL(redirectPath)
     };
 
-    // If the user is logged in, associate the checkout with their Stripe customer
-    if (user) {
-      try {
-        const customer = await createOrRetrieveCustomer({
-          uuid: user.id,
-          email: user.email || ''
-        });
-        params = {
-          ...params,
-          customer,
-          customer_update: { address: 'auto' }
-        };
-      } catch (err) {
-        console.error(err);
-        throw new Error('Unable to access customer record.');
-      }
-    }
-
-    console.log(
-      'Trial end:',
-      calculateTrialEndUnixTimestamp(price.trial_period_days)
-    );
     if (price.type === 'recurring') {
       params = {
         ...params,
@@ -88,7 +58,6 @@ export async function checkoutWithStripe(
       throw new Error('Unable to create checkout session.');
     }
 
-    // Instead of returning a Response, just return the data or error.
     if (session) {
       return { sessionId: session.id };
     } else {
@@ -111,67 +80,6 @@ export async function checkoutWithStripe(
           'Please try again later or contact a system administrator.'
         )
       };
-    }
-  }
-}
-
-export async function createStripePortal(currentPath: string) {
-  try {
-    const supabase = createClient();
-    const {
-      error,
-      data: { user }
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      if (error) {
-        console.error(error);
-      }
-      throw new Error('Could not get user session.');
-    }
-
-    let customer;
-    try {
-      customer = await createOrRetrieveCustomer({
-        uuid: user.id || '',
-        email: user.email || ''
-      });
-    } catch (err) {
-      console.error(err);
-      throw new Error('Unable to access customer record.');
-    }
-
-    if (!customer) {
-      throw new Error('Could not get customer.');
-    }
-
-    try {
-      const { url } = await stripe.billingPortal.sessions.create({
-        customer,
-        return_url: getURL('/account')
-      });
-      if (!url) {
-        throw new Error('Could not create billing portal');
-      }
-      return url;
-    } catch (err) {
-      console.error(err);
-      throw new Error('Could not create billing portal');
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error);
-      return getErrorRedirect(
-        currentPath,
-        error.message,
-        'Please try again later or contact a system administrator.'
-      );
-    } else {
-      return getErrorRedirect(
-        currentPath,
-        'An unknown error occurred.',
-        'Please try again later or contact a system administrator.'
-      );
     }
   }
 }
