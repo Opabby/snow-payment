@@ -9,6 +9,10 @@ import {
 } from '@/utils/helpers';
 import { Tables } from '@/types_db';
 
+export async function createStripePortal(currentPath: string): Promise<string> {
+  return getURL(currentPath);
+}
+
 type Price = Tables<'prices'>;
 
 type CheckoutResponse = {
