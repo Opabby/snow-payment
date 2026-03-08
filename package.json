@@ -14,7 +14,6 @@
     "test:sync": "playwright test tests/e2e/sync-stripe.spec.ts",
     "test:pricing": "playwright test tests/e2e/pricing.spec.ts",
     "test:checkout": "playwright test tests/e2e/checkout.spec.ts",
-    "test:account": "playwright test tests/e2e/account.spec.ts",
     "stripe:login": "stripe login",
     "stripe:listen": "stripe listen --forward-to=localhost:3000/api/webhooks",
     "stripe:fixtures": "stripe fixtures fixtures/stripe-fixtures.json",

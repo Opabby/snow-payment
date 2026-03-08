@@ -53,12 +53,17 @@ export default function Pricing({ user, products, subscription }: Props) {
   const [priceIdLoading, setPriceIdLoading] = useState<string>();
   const currentPath = usePathname();
 
-  const handleStripeCheckout = async (price: Price) => {
+  const handleStripeCheckout = async (price: Price, productName?: string) => {
     setPriceIdLoading(price.id);
+
+    const successPath = productName
+      ? `/success?product=${encodeURIComponent(productName)}`
+      : '/success';
 
     const { errorRedirect, sessionId } = await checkoutWithStripe(
       price,
-      currentPath
+      currentPath,
+      successPath
     );
 
     if (errorRedirect) {
@@ -188,7 +193,7 @@ export default function Pricing({ user, products, subscription }: Props) {
                       variant="slim"
                       type="button"
                       loading={priceIdLoading === price.id}
-                      onClick={() => handleStripeCheckout(price)}
+                      onClick={() => handleStripeCheckout(price, product.name)}
                       className="block w-full py-2 mt-8 text-sm font-semibold text-center text-white rounded-md hover:bg-zinc-900"
                     >
                       {subscription ? 'Gerenciar' : 'Assinar'}
@@ -240,7 +245,7 @@ export default function Pricing({ user, products, subscription }: Props) {
                           variant="slim"
                           type="button"
                           loading={priceIdLoading === price.id}
-                          onClick={() => handleStripeCheckout(price)}
+                          onClick={() => handleStripeCheckout(price, product.name)}
                           className="block w-full py-2 mt-8 text-sm font-semibold text-center text-white rounded-md hover:bg-zinc-900"
                         >
                           Comprar sessão

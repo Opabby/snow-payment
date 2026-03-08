@@ -18,7 +18,8 @@ type CheckoutResponse = {
 
 export async function checkoutWithStripe(
   price: Price,
-  redirectPath: string = '/success'
+  redirectPath: string = '/',
+  successPath: string = '/success'
 ): Promise<CheckoutResponse> {
   try {
     let params: Stripe.Checkout.SessionCreateParams = {
@@ -31,7 +32,7 @@ export async function checkoutWithStripe(
         }
       ],
       cancel_url: getURL(),
-      success_url: getURL(redirectPath)
+      success_url: getURL(successPath)
     };
 
     if (price.type === 'recurring') {
