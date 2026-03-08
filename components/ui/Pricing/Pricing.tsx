@@ -193,7 +193,7 @@ export default function Pricing({ user, products, subscription }: Props) {
                       variant="slim"
                       type="button"
                       loading={priceIdLoading === price.id}
-                      onClick={() => handleStripeCheckout(price, product.name)}
+                      onClick={() => handleStripeCheckout(price, product.name ?? undefined)}
                       className="block w-full py-2 mt-8 text-sm font-semibold text-center text-white rounded-md hover:bg-zinc-900"
                     >
                       {subscription ? 'Gerenciar' : 'Assinar'}
@@ -245,7 +245,7 @@ export default function Pricing({ user, products, subscription }: Props) {
                           variant="slim"
                           type="button"
                           loading={priceIdLoading === price.id}
-                          onClick={() => handleStripeCheckout(price, product.name)}
+                          onClick={() => handleStripeCheckout(price, product.name ?? undefined)}
                           className="block w-full py-2 mt-8 text-sm font-semibold text-center text-white rounded-md hover:bg-zinc-900"
                         >
                           Comprar sessão
