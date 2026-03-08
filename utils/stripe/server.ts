@@ -29,6 +29,7 @@ export async function checkoutWithStripe(
     let params: Stripe.Checkout.SessionCreateParams = {
       allow_promotion_codes: true,
       billing_address_collection: 'required',
+      locale: 'pt-BR',
       line_items: [
         {
           price: price.id,
