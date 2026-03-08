@@ -36,7 +36,7 @@ export async function checkoutWithStripe(
         }
       ],
       cancel_url: getURL(),
-      success_url: getURL(successPath)
+      success_url: getURL(successPath) + (successPath.includes('?') ? '&' : '?') + 'session_id={CHECKOUT_SESSION_ID}'
     };
 
     if (price.type === 'recurring') {

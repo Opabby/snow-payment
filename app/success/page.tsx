@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { stripe } from '@/utils/stripe/config';
 
 const WHATSAPP_NUMBER = '5511972820088';
 const WHATSAPP_NAME = 'André Yoshimura';
@@ -31,11 +33,20 @@ function buildWhatsAppUrl(product: string | undefined): string {
 }
 
 interface Props {
-  searchParams: Promise<{ product?: string }>;
+  searchParams: Promise<{ product?: string; session_id?: string }>;
 }
 
 export default async function SuccessPage({ searchParams }: Props) {
-  const { product } = await searchParams;
+  const { product, session_id } = await searchParams;
+
+  if (!session_id) return redirect('/');
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    if (session.status !== 'complete') return redirect('/');
+  } catch {
+    return redirect('/');
+  }
   const followUp = getFollowUpMessage(product);
   const whatsappUrl = buildWhatsAppUrl(product);
 
