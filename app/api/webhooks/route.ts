@@ -1,5 +1,7 @@
 import Stripe from 'stripe';
 import { stripe } from '@/utils/stripe/config';
+
+export const dynamic = 'force-dynamic';
 import {
   upsertProductRecord,
   upsertPriceRecord,
