@@ -11,10 +11,21 @@ const TRIAL_PERIOD_DAYS = 0;
 
 // Note: supabaseAdmin uses the SERVICE_ROLE_KEY which you must only use in a secure server-side context
 // as it has admin privileges and overwrites RLS policies!
-const supabaseAdmin = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
+let _supabaseAdmin: ReturnType<typeof createClient<Database>> | null = null;
+function getSupabaseAdmin() {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
+const supabaseAdmin = new Proxy({} as ReturnType<typeof createClient<Database>>, {
+  get(_target, prop) {
+    return (getSupabaseAdmin() as any)[prop];
+  }
+});
 
 const upsertProductRecord = async (product: Stripe.Product) => {
   const productData: Product = {
